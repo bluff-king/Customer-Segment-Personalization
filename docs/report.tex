@@ -1,0 +1,101 @@
+\section{Introduction}
+\label{sec:introduction}
+
+In an increasingly competitive e-commerce environment, personalization has become a critical differentiator for improving customer engagement and sustaining long-term business performance. Understanding the nuances in customer behavior allows firms to transition from uniform marketing strategies toward targeted, data-driven actions. 
+
+This project develops a comprehensive customer segmentation framework. By analyzing behavioral patterns—ranging from product views to transactions—we aim to identify distinct user cohorts. The resulting segmentation serves as the foundation for identifying customer personas and deploying tailored retention strategies, ultimately bridging the gap between raw data and actionable marketing intelligence.
+
+\section{Business Understanding}
+\label{sec:business_understanding}
+
+\subsection{Project Context}
+This project leverages the \textbf{RetailRocket E-commerce dataset}, comprised of real-world implicit feedback logs collected over a 4.5-month period. The dataset includes item views, add-to-cart events, and transactions, along with time-varying item attributes.
+
+\textbf{Core Challenge:} The data is observational, static, and hashed for confidentiality. The primary challenge is to transform granular "clickstreams" into high-level "customer intelligence." We must infer user intent from behavioral traces to support decision-making, moving away from mass marketing towards personalized engagement.
+
+\subsection{Business Goal}
+The objective is to architect an end-to-end \textbf{Customer Segmentation \& Personalization System}. This system will enable the marketing team to optimize resource allocation by targeting specific user groups. 
+
+\textbf{Key Deliverables:}
+\begin{enumerate}
+    \item \textbf{Segmentation Model:} A clustering-based approach (K-Means) categorizing customers based on RFM (Recency, Frequency, Monetary) indices and behavioral patterns.
+    \item \textbf{CLV Prediction:} A probabilistic model (BG/NBD + Gamma-Gamma) to distinguish between "high-value" users and "churned" users.
+    \item \textbf{Action Board (Strategic Mapping):} A defined set of rules mapping segments to marketing actions, derived from the DOC framework (detailed in Section \ref{sec:doc_framework}).
+    \item \textbf{Experimentation Framework:} A design for future A/B testing, including control groups and success metrics, to validate segment-specific interventions.
+    \item \textbf{Personalization Dashboard:} A visual interface for stakeholders to monitor segment health, migration trends, and revenue distribution.
+\end{enumerate}
+
+\subsection{The DOC Framework (Decision - Options - Criteria)}
+\label{sec:doc_framework}
+To align the technical solution with business needs, we apply the DOC framework:
+
+\subsubsection{Decision}
+\textbf{"What is the optimal engagement strategy for each specific customer segment to maximize retention and revenue?"}
+
+\subsubsection{Options (Strategic Levers)}
+We define four high-level strategic options based on customer behavior: 
+\begin{itemize}
+    \item \textbf{VIP Retention (Loyal Customers):}
+    \begin{itemize}
+        \item \textit{Action:} Exclusive early access, loyalty tiers, and value-added services (non-monetary incentives).
+    \end{itemize}
+    \item \textbf{Growth Acceleration (Promising Users):}
+    \begin{itemize}
+        \item \textit{Action:} Second-purchase incentives and cross-sell recommendations to increase frequency.
+    \end{itemize}
+    \item \textbf{Reactivation (Hibernating/At-Risk):}
+    \begin{itemize}
+        \item \textit{Action:} Time-limited aggressive discounts or "We miss you" campaigns.
+    \end{itemize}
+    \item \textbf{Acquisition/Conversion (Non-Transactors):}
+    \begin{itemize}
+        \item \textit{Action:} First-order discounts, onboarding flows, and social proofing.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Criteria (Success Metrics)}
+\begin{enumerate}
+    \item \textbf{Segmentation Interpretability:} Segments must have human-readable definitions (e.g., "Big Spenders") showing consistent and meaningful behavioral differences that can support business decision-making, rather than purely optimizing statistical metrics.
+    \item \textbf{Business Actionability:} Each segment must be easily mapped to a distinct marketing strategy (e.g., retention, growth, reactivation), ensuring that the segmentation results are actionable in real-world marketing operations.
+    % note: co the sai/k dung
+    \item \textbf{Stability:} Segments should remain relatively stable over short periods to ensure consistent campaign execution.
+    \item \textbf{Dashboard Effectiveness:} The dashboard should clearly communicate the segmentation insights, segment sizes, and proposed actions, enabling stakeholders to quickly understand customer distribution and prioritize interventions.
+\end{enumerate}
+
+\subsection{KPI Tree \& Metric Decomposition}
+To measure the success of the proposed strategies, we structure our Key Performance Indicators (KPIs) starting from a North Star Metric. 
+
+\subsubsection{North Star Metric: GMV (Gross Merchandise Value)}
+The total value of merchandise sold over the period.
+$$GMV = \text{Traffic} \times \text{Conversion Rate (CR)} \times \text{ATS}$$
+
+\subsubsection{Metric 1: Conversion Rate (CR)}
+The percentage of unique visitors who make at least one purchase. To identify specific points in the user journey, we decompose this into the following stages:
+
+\begin{itemize}
+    \item \textbf{View-to-Cart Rate:} The efficiency of moving users from product discovery to intent.
+    \item \textbf{Cart-to-Transaction Rate:} The efficiency of the checkout process.
+\end{itemize}
+
+$$CR = \underbrace{\left( \frac{\text{Visitors who Add to Cart}}{\text{Total Unique Visitors}} \right)}_{\text{View } \to \text{ Add to Cart}} \times \underbrace{\left( \frac{\text{Unique Paying Visitors}}{\text{Visitors who Add to Cart}} \right)}_{\text{Add to Cart } \to \text{ Transaction}}$$
+
+\subsubsection{Metric 2: Average Ticket Size (ATS)}
+
+\textbf{Data Constraint:} The dataset logs individual item transactions (\texttt{visitorid}, \texttt{itemid}, \texttt{transactionid}) but does not strictly group them into "baskets" or "orders" with a unified Order ID. 
+
+\textbf{Solution:} We use \textbf{Average Ticket Size (ATS)}—the average value generated per transaction event or per paying visitor—as a proxy for Average Order Value (AOV). This assumes that transaction events are a reliable proxy for purchase intent units.
+
+$$ATS \approx \frac{\text{Total Revenue}}{\text{Total Paying Visitors}}$$
+
+\subsection{Risks \& Mitigation}
+\begin{itemize}
+    \item \textbf{Assumption Validity:} The "ATS" proxy might underestimate value if users buy bundles in single logic flows we can't see.
+    \item \textbf{Data Sparsity:} A significant portion of users may have only 1-2 interaction events.
+    \begin{itemize}
+        \item \textit{Mitigation:} Use "Cold Start" strategies (e.g., recommending popular items) for these users and exclude them from complex CLV modeling to avoid noise.
+    \end{itemize}
+    \item \textbf{Observational Bias:} As the dataset is historical, we cannot measure the \textit{causal} impact of proposed actions without a live test.
+    \begin{itemize}
+        \item \textit{Mitigation:} The "Experimentation Framework" deliverable explicitly designs the necessary control groups to validate strategies in a future deployment phase.
+    \end{itemize}
+\end{itemize}
