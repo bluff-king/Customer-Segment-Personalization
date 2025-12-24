@@ -1,0 +1,12 @@
+Customer Segmentation & Personalization (E‑commerce) 
+
+Business goal: Create actionable segments (RFM/CLV) and personalized promo rules. 
+
+Datasets / Sources:
+• RetailRocket E‑commerce Events: 
+https://www.kaggle.com/datasets/retailrocket/ecommerce-dataset 
+
+Suggested methods & deliverables:
+• CLV estimation (BG/NBD + Gamma-Gamma) and RFM 
+• K‑means/mixture models; segment personas 
+• Experimentation framework; personalization dashboards
